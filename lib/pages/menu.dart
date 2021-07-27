@@ -11,16 +11,17 @@ class _MenuState extends State<Menu> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
         shadowColor: Color.fromARGB(0, 255, 255, 255),
       ),
-      body: SafeArea(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              color: Colors.white,
+      body: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            color: Colors.white,
+            child: SingleChildScrollView(
               child: Column(
                 children: [
                   /**
@@ -68,7 +69,7 @@ class _MenuState extends State<Menu> {
                         ),
                       ),
                       onPressed: () {
-
+                        Navigator.pushReplacementNamed(context, '/list');
                       },
                       child: Text('Посмотреть список', style: TextStyle(
                         fontSize: 20,
@@ -78,8 +79,8 @@ class _MenuState extends State<Menu> {
                 ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
