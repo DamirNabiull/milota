@@ -79,7 +79,7 @@ class _AddChildState extends State<AddChild> {
         actions: [
           IconButton(onPressed: () {
             _submit();
-            }, icon: Icon(Icons.menu, color: Color.fromARGB(255, 159, 107, 121), size: 30,),)
+          }, icon: Icon(Icons.menu, color: Color.fromARGB(255, 159, 107, 121), size: 30,),)
         ],
       ),
       body: SafeArea(
