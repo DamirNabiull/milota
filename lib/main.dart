@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:milota/pages/menu.dart';
 import 'package:milota/pages/addChild.dart';
+import 'package:milota/pages/showListOfChildren.dart';
 
 Map<int, Color> mainColor = {
   50:Color.fromRGBO(176, 137, 147, .1),
@@ -26,5 +27,6 @@ void main() => runApp(MaterialApp(
   routes: {
     '/': (context) => Menu(),
     '/add': (context) => AddChild(),
+    '/list': (context) => ShowListOfChildren(),
   },
 ),);
