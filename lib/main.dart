@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:milota/pages/menu.dart';
 import 'package:milota/pages/addChild.dart';
 import 'package:milota/pages/showListOfChildren.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 Map<int, Color> mainColor = {
   50:Color.fromRGBO(176, 137, 147, .1),
@@ -18,15 +19,23 @@ Map<int, Color> mainColor = {
 
 MaterialColor colorCustom = MaterialColor(0xFF9F6B79, mainColor);
 
-void main() => runApp(MaterialApp(
-  theme: ThemeData(
-    primaryColor: Color.fromARGB(255, 176, 137, 147),
-    primarySwatch: colorCustom,
-  ),
-  initialRoute: '/',
-  routes: {
-    '/': (context) => Menu(),
-    '/add': (context) => AddChild(),
-    '/list': (context) => ShowListOfChildren(),
-  },
-),);
+void initFirebase() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+}
+
+void main() {
+  initFirebase();
+  runApp(MaterialApp(
+    theme: ThemeData(
+      primaryColor: Color.fromARGB(255, 176, 137, 147),
+      primarySwatch: colorCustom,
+    ),
+    initialRoute: '/',
+    routes: {
+      '/': (context) => Menu(),
+      '/add': (context) => AddChild(),
+      '/list': (context) => ShowListOfChildren(),
+    },
+  ),);
+}
