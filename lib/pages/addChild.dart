@@ -1,5 +1,10 @@
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'dart:io';
 import 'package:intl/intl.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:milota/api/firebase_api.dart';
 
 class AddChild extends StatefulWidget {
 
@@ -15,11 +20,78 @@ class _AddChildState extends State<AddChild> {
   TextEditingController _photoDateController = TextEditingController();
   TextEditingController _publicationDateController = TextEditingController();
 
-  final DateFormat _dateFormatter = DateFormat('MMM dd, yyyy');
+  final DateFormat _dateFormatter = DateFormat('dd.MM.yyyy');
 
   bool hasImage = false;
-  String? _name = '', _parent = '', _phone = '', _link = '';
+  String? _name = '', _parent = '', _phone = '', _link = '', _urlImage = '';
   DateTime? _photoDate = DateTime.now(), _publicationDate = DateTime.now();
+
+  File? _image;
+  final picker = ImagePicker();
+  UploadTask? task;
+
+  getImage() async {
+    final pickedFile = await picker.getImage(source: ImageSource.gallery);
+
+    setState(() {
+      if (pickedFile != null) {
+        _image = File(pickedFile.path);
+        hasImage = true;
+      } else {
+        print('No image selected.');
+        hasImage = false;
+      }
+    });
+  }
+
+  checkData() async {
+    return await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Сохранение информации'),
+          content: const Text("Вы уверены, что все введенные данные коректны? \n\nПосле нажатия кнопки \"Да\" дождитесь закрытия окна, для полной загрузки данных в базу."),
+          actions: <Widget>[
+            TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(true);
+                  uploadImageToFirebaseStorage();
+                },
+                child: const Text("Да")
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text("Отмена"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  uploadImageToFirebaseStorage() async {
+    if (_image == null) return;
+
+    final filename = '$_name$_parent$_phone';
+    final destination = 'files/$filename';
+
+    task = FirebaseApi.uploadFile(destination, _image!);
+
+    if (task == null) return;
+    final snapshot = await task!.whenComplete(() => null);
+    _urlImage = await snapshot.ref.getDownloadURL();
+    FirebaseFirestore.instance.collection('Children').add({
+      'name' : _name,
+      'parent' : _parent,
+      'phone' : _phone,
+      'link' : _link,
+      'photoDate' : _photoDate,
+      'publicationDate' : _publicationDate,
+      'urlImage' : _urlImage,
+    });
+
+    Navigator.pushReplacementNamed(context, '/');
+  }
 
   _photoDatePicker() async {
     final DateTime? phDate = await showDatePicker(
@@ -61,11 +133,34 @@ class _AddChildState extends State<AddChild> {
     super.dispose();
   }
 
-  void _submit() {
-    if (_formKey.currentState!.validate()) {
+  void _submit() async {
+    if (_formKey.currentState!.validate() && _image != null) {
       _formKey.currentState!.save();
       print('$_name, $_parent, $_phone, $_link');
-      Navigator.pushReplacementNamed(context, '/');
+      checkData();
+    } else {
+      return await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Выход без сохранения'),
+            content: const Text("Вы уверены, что хотите выйти не сохраняя данную информацию?"),
+            actions: <Widget>[
+              TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(true);
+                    Navigator.pushReplacementNamed(context, '/');
+                  },
+                  child: const Text("Да")
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text("Отмена"),
+              ),
+            ],
+          );
+        },
+      );
     }
   }
 
@@ -416,10 +511,15 @@ class _AddChildState extends State<AddChild> {
                     Padding(padding: EdgeInsets.only(top: 33)),
                     hasImage
                         ? Container(
-                      child: Image(
-                        image: AssetImage('images/logo.png'),
-                        height: 150,
-                        width: 150,
+                      child: GestureDetector(
+                        child: Image(
+                          image: FileImage(_image!),
+                          height: 150,
+                          width: 150,
+                        ),
+                        onTap: () {
+                          getImage();
+                        },
                       ),
                       decoration: BoxDecoration(
                         border: Border.all(
@@ -435,9 +535,7 @@ class _AddChildState extends State<AddChild> {
                       child: Center(
                         child: IconButton(
                           onPressed: () {
-                            setState(() {
-                              hasImage = !hasImage;
-                            });
+                            getImage();
                           },
                           icon: Icon(Icons.add),
                           iconSize: 130,
