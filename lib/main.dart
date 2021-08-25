@@ -1,23 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+
 import 'package:milota/pages/menu.dart';
 import 'package:milota/pages/addChild.dart';
 import 'package:milota/pages/showListOfChildren.dart';
-import 'package:firebase_core/firebase_core.dart';
-
-Map<int, Color> mainColor = {
-  50:Color.fromRGBO(176, 137, 147, .1),
-  100:Color.fromRGBO(176, 137, 147, .2),
-  200:Color.fromRGBO(176, 137, 147, .3),
-  300:Color.fromRGBO(176, 137, 147, .4),
-  400:Color.fromRGBO(176, 137, 147, .5),
-  500:Color.fromRGBO(176, 137, 147, .6),
-  600:Color.fromRGBO(176, 137, 147, .7),
-  700:Color.fromRGBO(176, 137, 147, .8),
-  800:Color.fromRGBO(176, 137, 147, .9),
-  900:Color.fromRGBO(176, 137, 147, 1),
-};
-
-MaterialColor colorCustom = MaterialColor(0xFF9F6B79, mainColor);
+import 'package:milota/assets/colors.dart';
 
 void initFirebase() async {
   WidgetsFlutterBinding.ensureInitialized();
